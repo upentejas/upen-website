@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Upen — Upen Pte Ltd</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #080d1a;
+      --surface: #0d1628;
+      --card:    #111c2e;
+      --border:  #1c2d45;
+      --border2: #243650;
+      --accent:  #e8a020;
+      --acc2:    #c07010;
+      --green:   #22d47a;
+      --red:     #f04f5a;
+      --muted:   #5e7690;
+      --text:    #dce8f8;
+      --dim:     #8fa3bd;
+      --font:    'Segoe UI', system-ui, sans-serif;
+    }
+    body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:14px; }
+
+    /* ── NAVBAR ── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      height:56px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 28px;
+      background:rgba(8,13,26,.97); border-bottom:1px solid var(--border);
+      backdrop-filter:blur(14px);
+    }
+    .nav-brand { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:700;
+      text-decoration:none; color:var(--text); }
+    .nav-brand .logo { width:30px; height:30px; border-radius:7px;
+      background:linear-gradient(135deg,var(--accent),var(--acc2));
+      display:flex; align-items:center; justify-content:center; font-size:15px; }
+    .hl { color:var(--accent); }
+    .nav-links { display:flex; gap:4px; }
+    .nav-links a { color:var(--dim); text-decoration:none; padding:6px 13px;
+      border-radius:6px; font-size:13px; font-weight:500; transition:all .2s; }
+    .nav-links a:hover { color:var(--text); background:var(--border); }
+    .nav-links a.on { color:var(--accent); background:var(--border); }
+    .btn-dash {
+      background:linear-gradient(135deg,var(--accent),var(--acc2));
+      color:#1a1000; font-size:12px; font-weight:700;
+      padding:7px 16px; border-radius:7px; text-decoration:none; transition:opacity .2s;
+    }
+    .btn-dash:hover { opacity:.88; }
+
+    /* ── HERO ── */
+    .hero {
+      margin-top:56px;
+      background:linear-gradient(155deg,#0d1a30 0%,#080d1a 65%);
+      border-bottom:1px solid var(--border);
+      padding:60px 28px 52px; position:relative; overflow:hidden;
+    }
+    .hero::before {
+      content:''; position:absolute; top:-80px; right:-60px;
+      width:480px; height:480px;
+      background:radial-gradient(circle,rgba(232,160,32,.07) 0%,transparent 70%);
+      pointer-events:none;
+    }
+    .hero-inner {
+      max-width:1000px; margin:0 auto;
+      display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:center;
+    }
+    .photo-frame {
+      width:170px; height:170px; border-radius:50%;
+      border:3px solid var(--accent); overflow:hidden;
+      background:var(--card); display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
+    }
+    .photo-frame img { width:100%; height:100%; object-fit:cover; display:none; }
+    .photo-ph {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      color:var(--muted); font-size:11px; text-align:center; padding:14px;
+    }
+    .photo-ph .ico { font-size:36px; opacity:.4; }
+    .photo-ph .hint { font-size:10px; color:var(--border2); margin-top:2px; }
+
+    .hero-text h1 { font-size:30px; font-weight:700; line-height:1.2; margin-bottom:5px; }
+    .hero-text h1 .name-hl { color:var(--accent); }
+    .hero-text .sub-title { font-size:14px; color:var(--dim); margin-bottom:14px; font-weight:500; }
+    .tags { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:18px; }
+    .tag {
+      padding:3px 10px; border-radius:4px; font-size:11px; font-weight:600;
+      background:rgba(232,160,32,.1); color:var(--accent);
+      border:1px solid rgba(232,160,32,.2);
+    }
+    .hero-text .tagline { font-size:14px; line-height:1.7; color:var(--dim); max-width:600px; margin-bottom:22px; }
+    .hero-stats { display:flex; gap:28px; flex-wrap:wrap; }
+    .stat { display:flex; flex-direction:column; gap:3px; }
+    .stat-v { font-size:20px; font-weight:700; }
+    .stat-v .a { color:var(--accent); }
+    .stat-l { font-size:10px; color:var(--muted); font-weight:600; letter-spacing:.3px; }
+
+    /* ── MAIN ── */
+    main { padding:36px 28px 60px; max-width:1000px; margin:0 auto; }
+    .sec { margin-bottom:36px; }
+    .sec h2 {
+      font-size:15px; font-weight:700;
+      display:flex; align-items:center; gap:10px;
+      margin-bottom:16px; padding-bottom:11px;
+      border-bottom:1px solid var(--border);
+    }
+    .sec-ico {
+      width:28px; height:28px; border-radius:6px;
+      background:rgba(232,160,32,.12);
+      display:flex; align-items:center; justify-content:center; font-size:14px;
+      flex-shrink:0;
+    }
+
+    /* prose */
+    .prose p { font-size:13.5px; line-height:1.85; color:var(--dim); margin-bottom:13px; }
+    .prose p:last-child { margin-bottom:0; }
+    .prose strong { color:var(--text); }
+
+    /* 3-spread grid */
+    .spread-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+    .spread-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:11px; padding:18px 20px; transition:border-color .2s;
+    }
+    .spread-card:hover { border-color:var(--accent); }
+    .spread-card .sc-icon { font-size:24px; margin-bottom:10px; }
+    .spread-card .sc-name { font-size:13px; font-weight:700; margin-bottom:5px; }
+    .spread-card .sc-desc { font-size:12px; color:var(--dim); line-height:1.55; }
+
+    /* 5-year table */
+    .yr-table { width:100%; border-collapse:collapse; font-size:13px; }
+    .yr-table th {
+      text-align:left; padding:9px 14px; font-size:11px; font-weight:700;
+      letter-spacing:.5px; color:var(--muted);
+      border-bottom:1px solid var(--border);
+    }
+    .yr-table td { padding:10px 14px; border-bottom:1px solid rgba(28,45,69,.5); color:var(--dim); }
+    .yr-table tr:last-child td { border-bottom:none; }
+    .yr-table tr:hover td { background:rgba(232,160,32,.03); }
+    .yr-table td:first-child { font-weight:700; color:var(--text); }
+    .yr-table .profit { color:var(--green); font-weight:700; }
+    .yr-table .total-row td { border-top:1px solid var(--border); padding-top:13px; }
+    .yr-table .total-row td:first-child { color:var(--accent); }
+
+    /* partnership grid */
+    .partner-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .partner-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:11px; padding:18px 20px;
+    }
+    .partner-card h3 { font-size:13px; font-weight:700; margin-bottom:12px;
+      padding-bottom:9px; border-bottom:1px solid var(--border); }
+    .partner-card ul { list-style:none; display:flex; flex-direction:column; gap:7px; }
+    .partner-card ul li { font-size:12.5px; color:var(--dim); display:flex; gap:8px; line-height:1.5; }
+    .partner-card ul li::before { content:'→'; color:var(--accent); flex-shrink:0; }
+
+    /* profit share visual */
+    .profit-share { display:flex; gap:14px; align-items:stretch; }
+    .ps-bar-wrap { flex:1; background:var(--card); border:1px solid var(--border);
+      border-radius:11px; padding:18px 20px; }
+    .ps-bar-wrap h3 { font-size:13px; font-weight:700; margin-bottom:14px; }
+    .ps-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .ps-lbl { font-size:12px; color:var(--dim); width:140px; flex-shrink:0; }
+    .ps-track { flex:1; height:22px; background:var(--border); border-radius:5px; overflow:hidden; }
+    .ps-fill  { height:100%; border-radius:5px; display:flex; align-items:center;
+      padding-left:10px; font-size:11px; font-weight:700; }
+    .ps-pct { font-size:13px; font-weight:700; width:36px; text-align:right; }
+
+    /* track record callout */
+    .track-record {
+      display:flex; gap:14px; align-items:flex-start;
+      background:rgba(34,212,122,.06); border:1px solid rgba(34,212,122,.2);
+      border-radius:10px; padding:16px 20px; margin-top:16px;
+    }
+    .tr-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+    .tr-label { font-size:10px; font-weight:700; letter-spacing:.6px;
+      color:var(--green); margin-bottom:5px; }
+    .tr-headline { font-size:12.5px; color:var(--dim); line-height:1.6; }
+    .tr-profit { color:var(--green); font-weight:700; }
+
+    /* philosophy bullets */
+    .phil-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .phil-item {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:9px; padding:13px 16px;
+      display:flex; gap:10px; align-items:flex-start;
+    }
+    .phil-item .pi-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+    .phil-item .pi-text { font-size:12.5px; color:var(--dim); line-height:1.55; }
+    .phil-item .pi-text strong { color:var(--text); }
+
+    /* contact */
+    .contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .ccard {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:10px; padding:16px 18px;
+      display:flex; align-items:center; gap:13px;
+      text-decoration:none; transition:border-color .2s, background .2s;
+    }
+    .ccard:hover { border-color:var(--accent); background:rgba(232,160,32,.03); }
+    .ccard-ico { width:40px; height:40px; border-radius:9px;
+      display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .ccard-lbl { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:.4px; margin-bottom:3px; }
+    .ccard-val { font-size:13px; font-weight:600; color:var(--text); }
+
+    /* CTA */
+    .cta {
+      background:linear-gradient(135deg,rgba(232,160,32,.11),rgba(194,112,16,.05));
+      border:1px solid rgba(232,160,32,.22); border-radius:12px;
+      padding:26px 30px; display:flex; align-items:center;
+      justify-content:space-between; gap:22px; flex-wrap:wrap;
+    }
+    .cta h3 { font-size:15px; font-weight:700; margin-bottom:5px; }
+    .cta p  { font-size:12.5px; color:var(--dim); }
+    .cta-btn {
+      background:linear-gradient(135deg,var(--accent),var(--acc2));
+      color:#1a1000; font-size:13px; font-weight:700;
+      padding:10px 22px; border-radius:8px; text-decoration:none;
+      white-space:nowrap; transition:opacity .2s; flex-shrink:0;
+    }
+    .cta-btn:hover { opacity:.9; }
+
+    footer { text-align:center; padding:22px; border-top:1px solid var(--border);
+      color:var(--muted); font-size:11px; margin-top:12px; }
+    footer a { color:var(--accent); text-decoration:none; }
+
+    @media(max-width:760px){
+      .hero-inner { grid-template-columns:1fr; justify-items:center; text-align:center; }
+      .hero-stats { justify-content:center; }
+      .spread-grid { grid-template-columns:1fr; }
+      .partner-grid { grid-template-columns:1fr; }
+      .phil-grid { grid-template-columns:1fr; }
+      .contact-grid { grid-template-columns:1fr; }
+      .cta { flex-direction:column; text-align:center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <a class="nav-brand" href="index.html">
+    <div class="logo">⛽</div>
+    <span>U<span class="hl">pen</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="trades.html">Trades &amp; Performance</a>
+    <a href="about.html" class="on">About Upen</a>
+  </div>
+  <a href="index.html" class="btn-dash">↗ Live Dashboard</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+
+    <div class="photo-frame" title="Replace with photo">
+      <!-- Add photo: <img src="venkatesh.jpg" style="display:block"> and remove photo-ph div -->
+      <div class="photo-ph">
+        <div class="ico">👤</div>
+        <div>Photo</div>
+        <div class="hint">Replace &lt;img&gt; src</div>
+      </div>
+    </div>
+
+    <div class="hero-text">
+      <h1>Venkatesh <span class="name-hl">Raman</span></h1>
+      <div class="sub-title">Managing Director · Upen Pte Ltd · Singapore</div>
+      <div class="tags">
+        <span class="tag">Aromatics Trading</span>
+        <span class="tag">Petrochemical Derivatives</span>
+        <span class="tag">SGX Derivatives</span>
+        <span class="tag">Fund Manager</span>
+        <span class="tag">Spread Strategies</span>
+      </div>
+      <p class="tagline">
+        25+ years of global petrochemical markets experience spanning Singapore, the Netherlands, and India.
+        Former Managing Director at Trammo — one of the top two aromatics traders globally — leading a team of five
+        specialist traders and playing a foundational role in establishing petrochemical derivatives on SGX.
+      </p>
+      <div class="hero-stats">
+        <div class="stat"><div class="stat-v"><span class="a">25+</span></div><div class="stat-l">Years Experience</div></div>
+        <div class="stat"><div class="stat-v"><span class="a">$60–76M</span></div><div class="stat-l">5-Yr Profit Target</div></div>
+        <div class="stat"><div class="stat-v"><span class="a">3</span></div><div class="stat-l">Aromatics Spreads</div></div>
+        <div class="stat"><div class="stat-v"><span class="a">SGX</span></div><div class="stat-l">Primary Exchange</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <!-- STRATEGY -->
+  <div class="sec">
+    <h2><div class="sec-ico">📈</div> Strategy — 3 SGX Aromatics Spreads</h2>
+    <div class="spread-grid">
+      <div class="spread-card">
+        <div class="sc-icon">🔷</div>
+        <div class="sc-name">PX–Naphtha Spread</div>
+        <div class="sc-desc">The primary driver of polyester margins globally. Highly sensitive to refinery operations, crude oil quality, and Asian textile/PTA demand cycles. The flagship Upen strategy with a fully back-tested model and verified public track record.</div>
+      </div>
+      <div class="spread-card">
+        <div class="sc-icon">🔶</div>
+        <div class="sc-name">Benzene–Naphtha Spread</div>
+        <div class="sc-desc">Influenced by styrene and phenol production cycles. Known for sharp widening opportunities during downstream demand surges or supply disruptions. Provides excellent counter-cyclical diversification versus the PX strategy.</div>
+      </div>
+      <div class="spread-card">
+        <div class="sc-icon">🔹</div>
+        <div class="sc-name">PX–Benzene Spread</div>
+        <div class="sc-desc">Cross-aromatics exposure that captures the relative value between the two key aromatic products. Provides natural diversification and stability, acting as a bridge between the two primary spread positions.</div>
+      </div>
+    </div>
+
+    <!-- Track record callout -->
+    <div class="track-record">
+      <div class="tr-icon">📌</div>
+      <div class="tr-body">
+        <div class="tr-label">VERIFIED TRACK RECORD</div>
+        <div class="tr-headline">PX–Naphtha model called the $260–280/mt target when spread was at $210–220/mt — publicly posted on LinkedIn. Spread hit exactly those levels. A 10,000 MT position would have returned <span class="tr-profit">USD 600,000</span>.</div>
+      </div>
+    </div>
+
+    <!-- Philosophy — 4 tight points -->
+    <div class="phil-grid" style="margin-top:14px">
+      <div class="phil-item">
+        <div class="pi-icon">📐</div>
+        <div class="pi-text"><strong>Rules-Based Entry</strong> — Trades only when spreads reach model-defined profitable zones. No discretionary overrides.</div>
+      </div>
+      <div class="phil-item">
+        <div class="pi-icon">🛡️</div>
+        <div class="pi-text"><strong>Strict Risk Controls</strong> — Hard stop-loss on every position. Capital protection first; returns second.</div>
+      </div>
+      <div class="phil-item">
+        <div class="pi-icon">🔄</div>
+        <div class="pi-text"><strong>Relative Value Only</strong> — No directional crude bets. Pure spread exposure eliminates commodity directional risk.</div>
+      </div>
+      <div class="phil-item">
+        <div class="pi-icon">📋</div>
+        <div class="pi-text"><strong>Full Transparency</strong> — Daily position tracking, weekly and monthly open-book P&amp;L reporting to all partners.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5-YEAR PLAN -->
+  <div class="sec">
+    <h2><div class="sec-ico">📅</div> 5-Year Step-Up Programme <span style="font-weight:400;color:var(--muted);font-size:13px">· Total target: USD 60–76M</span></h2>
+    <table class="yr-table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Quarterly Volume (MT)</th>
+          <th>Annual Volume (MT)</th>
+          <th>Expected Profit Range</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2026</td>
+          <td>80,000</td>
+          <td>320,000</td>
+          <td class="profit">USD 8–10M</td>
+          <td>Establish base performance and system confidence</td>
+        </tr>
+        <tr>
+          <td>2027</td>
+          <td>100,000</td>
+          <td>400,000</td>
+          <td class="profit">USD 10–13M</td>
+          <td>Increase exposure after validated first-year results</td>
+        </tr>
+        <tr>
+          <td>2028</td>
+          <td>120,000</td>
+          <td>480,000</td>
+          <td class="profit">USD 12–15M</td>
+          <td>Broader participation across all three spreads</td>
+        </tr>
+        <tr>
+          <td>2029</td>
+          <td>140,000</td>
+          <td>560,000</td>
+          <td class="profit">USD 14–18M</td>
+          <td>Scale volume with deeper market access</td>
+        </tr>
+        <tr>
+          <td>2030</td>
+          <td>160,000</td>
+          <td>640,000</td>
+          <td class="profit">USD 16–20M</td>
+          <td>Mature phase with full operational deployment</td>
+        </tr>
+        <tr class="total-row">
+          <td>Total (5 Years)</td>
+          <td>—</td>
+          <td>2,400,000</td>
+          <td class="profit" style="font-size:14px">USD 60–76M</td>
+          <td>Expected cumulative 5-year programme returns</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PARTNERSHIP STRUCTURE -->
+  <div class="sec">
+    <h2><div class="sec-ico">🤝</div> Partnership Structure</h2>
+    <div class="partner-grid" style="margin-bottom:16px">
+      <div class="partner-card">
+        <h3>Investor Responsibilities</h3>
+        <ul>
+          <li>Provide capital, margin, and execution infrastructure</li>
+          <li>Expected investment: up to <strong>USD 5 million</strong></li>
+          <li>Manage clearing, brokerage, and operational processes</li>
+          <li>Oversee compliance and regulatory requirements</li>
+        </ul>
+      </div>
+      <div class="partner-card">
+        <h3>Upen Pte Ltd Responsibilities</h3>
+        <ul>
+          <li>Trading signals, strategy guidance, and execution oversight</li>
+          <li>Daily risk monitoring and position tracking</li>
+          <li>Weekly and monthly P&amp;L and risk reporting</li>
+          <li>Ongoing model refinement and analytics updates</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ps-bar-wrap">
+      <h3>Profit Share Structure</h3>
+      <div class="ps-row">
+        <div class="ps-lbl">Investor</div>
+        <div class="ps-track">
+          <div class="ps-fill" style="width:60%;background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#e0f0ff">
+            60%
+          </div>
+        </div>
+        <div class="ps-pct" style="color:#60a5fa">60%</div>
+      </div>
+      <div class="ps-row">
+        <div class="ps-lbl">Upen Pte Ltd</div>
+        <div class="ps-track">
+          <div class="ps-fill" style="width:40%;background:linear-gradient(90deg,var(--accent),var(--acc2));color:#1a1000">
+            40%
+          </div>
+        </div>
+        <div class="ps-pct" style="color:var(--accent)">40%</div>
+      </div>
+      <p style="font-size:11.5px;color:var(--muted);margin-top:11px;line-height:1.6">
+        A fixed monthly draw of <strong style="color:var(--text)">USD 25,000</strong> (Upen) is deducted from gross profits before the 60/40 split is applied.
+      </p>
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="sec">
+    <h2><div class="sec-ico">✉️</div> Get in Touch</h2>
+    <div class="contact-grid" style="margin-bottom:20px">
+      <a href="tel:+6596191431" class="ccard">
+        <div class="ccard-ico" style="background:rgba(232,160,32,.12)">📞</div>
+        <div>
+          <div class="ccard-lbl">PHONE / WHATSAPP</div>
+          <div class="ccard-val">+65 9619 1431</div>
+        </div>
+      </a>
+      <a href="mailto:venkatesh@upen.com.sg" class="ccard">
+        <div class="ccard-ico" style="background:rgba(59,130,246,.12)">📧</div>
+        <div>
+          <div class="ccard-lbl">EMAIL</div>
+          <div class="ccard-val">venkatesh@upen.com.sg</div>
+        </div>
+      </a>
+      <a href="https://www.linkedin.com/in/venkatesh-raman" class="ccard" target="_blank">
+        <div class="ccard-ico" style="background:rgba(34,212,122,.1)">💼</div>
+        <div>
+          <div class="ccard-lbl">LINKEDIN</div>
+          <div class="ccard-val">Venkatesh Raman — SGX Aromatics</div>
+        </div>
+      </a>
+      <a href="#" class="ccard">
+        <div class="ccard-ico" style="background:rgba(168,85,247,.12)">📍</div>
+        <div>
+          <div class="ccard-lbl">LOCATION</div>
+          <div class="ccard-val">Singapore</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="cta">
+      <div>
+        <h3>Meet in Singapore</h3>
+        <p>Available to meet in person to walk through the back-tested strategy, live model results, and partnership terms.</p>
+      </div>
+      <a href="tel:+6596191431" class="cta-btn">📞 Call +65 9619 1431</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Upen Pte Ltd &nbsp;|&nbsp; <a href="index.html">Dashboard</a> &nbsp;|&nbsp; <a href="about.html">About Upen</a></p>
+  <p style="margin-top:5px;font-size:10px;color:#2a3d55">&copy; 2026 Upen Pte Ltd. For informational purposes only. Not financial advice.</p>
+</footer>
+
+</body>
+</html>

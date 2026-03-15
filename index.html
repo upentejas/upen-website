@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upen — Oil &amp; Petrochemical Markets</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #080d1a;
+      --surface: #0d1628;
+      --card:    #111c2e;
+      --card2:   #0f1a2b;
+      --border:  #1c2d45;
+      --border2: #243650;
+      --accent:  #e8a020;
+      --acc2:    #c07010;
+      --green:   #22d47a;
+      --red:     #f04f5a;
+      --muted:   #5e7690;
+      --text:    #dce8f8;
+      --dim:     #8fa3bd;
+      --font:    'Segoe UI', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+
+    /* ══ NAVBAR ══════════════════════════════ */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:200;
+      height:56px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 28px;
+      background:rgba(8,13,26,.97); border-bottom:1px solid var(--border);
+      backdrop-filter:blur(14px);
+    }
+    .nav-brand { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:700;
+      text-decoration:none; color:var(--text); }
+    .nav-brand .logo { width:30px; height:30px; border-radius:7px;
+      background:linear-gradient(135deg,var(--accent),var(--acc2));
+      display:flex; align-items:center; justify-content:center; font-size:15px; }
+    .hl { color:var(--accent); }
+    .nav-links { display:flex; gap:4px; }
+    .nav-links a { color:var(--dim); text-decoration:none; padding:6px 13px;
+      border-radius:6px; font-size:13px; font-weight:500; transition:all .2s; }
+    .nav-links a:hover, .nav-links a.on { color:var(--text); background:var(--border); }
+    .nav-links a.on { color:var(--accent); }
+    .nav-r { display:flex; align-items:center; gap:16px; font-size:12px; color:var(--muted); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+    /* market status */
+    .mkts { display:flex; align-items:center; gap:12px; }
+    .mkt  { display:flex; align-items:center; gap:5px; }
+    .mkt-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .mkt-dot.open   { background:var(--green); animation:pulse 2s infinite; }
+    .mkt-dot.closed { background:#2e4060; }
+    .mkt-name   { font-size:11px; font-weight:700; color:var(--dim); letter-spacing:.3px; }
+    .mkt-status { font-size:10px; margin-left:2px; }
+    .mkt-status.open   { color:var(--green); }
+    .mkt-status.closed { color:#3d5570; }
+    .mkt-sep { width:1px; height:14px; background:var(--border); }
+    .nav-clk { font-size:11px; color:var(--muted); font-variant-numeric:tabular-nums; }
+
+    /* ══ TICKER ══════════════════════════════ */
+    .ticker-wrap {
+      position:fixed; top:56px; left:0; right:0; z-index:190;
+      height:34px; background:var(--surface); border-bottom:1px solid var(--border);
+      overflow:hidden; display:flex; align-items:center;
+    }
+    .ticker-lbl {
+      flex-shrink:0; padding:0 13px; font-size:10px; font-weight:700;
+      letter-spacing:1px; color:var(--accent); border-right:1px solid var(--border);
+      height:100%; display:flex; align-items:center; background:var(--surface); z-index:1;
+    }
+    .ticker-scroll { overflow:hidden; flex:1; }
+    .ticker-track { display:flex; align-items:center; white-space:nowrap;
+      animation:scrolltick 55s linear infinite; }
+    .ticker-track:hover { animation-play-state:paused; }
+    @keyframes scrolltick { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ti { display:inline-flex; align-items:center; gap:6px;
+      padding:0 18px; border-right:1px solid var(--border); font-size:12px; }
+    .ti-n { color:var(--dim); font-weight:600; font-size:11px; }
+    .ti-p { color:var(--text); font-weight:700; }
+    .ti-c { font-size:11px; font-weight:600; }
+    .up { color:var(--green); }
+    .dn { color:var(--red); }
+
+    /* ══ LAYOUT ══════════════════════════════ */
+    main { margin-top:90px; padding:22px 26px 52px; max-width:1580px;
+      margin-left:auto; margin-right:auto; }
+    .sh { display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+    .sh h2 { font-size:14px; font-weight:600; }
+    .sh .pill { font-size:10px; font-weight:700; color:var(--accent);
+      background:rgba(232,160,32,.1); border:1px solid rgba(232,160,32,.2);
+      padding:2px 8px; border-radius:20px; letter-spacing:.5px; }
+    .sdiv { flex:1; height:1px; background:var(--border); }
+
+    /* ══ PRODUCT SELECTOR ════════════════════ */
+    .product-selector {
+      display:grid; grid-template-columns:repeat(6,1fr); gap:12px;
+      margin-bottom:26px;
+    }
+    .pc {
+      background:var(--card); border:2px solid var(--border);
+      border-radius:12px; padding:16px 18px 12px;
+      cursor:pointer; transition:all .2s; position:relative; overflow:hidden;
+      user-select:none;
+    }
+    .pc:hover { border-color:var(--border2); background:var(--card2); }
+    .pc.active { border-color:var(--accent); background:rgba(232,160,32,.05); }
+    .pc-top { display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+    .pc-icon { font-size:18px; }
+    .pc-name { font-size:12px; font-weight:700; color:var(--dim);
+      letter-spacing:.3px; transition:color .2s; }
+    .pc.active .pc-name { color:var(--accent); }
+    .pc-price { font-size:20px; font-weight:700; margin-bottom:3px;
+      font-variant-numeric:tabular-nums; }
+    .pc-chg { font-size:11.5px; font-weight:600; margin-bottom:4px; }
+    .pc-unit { font-size:10px; color:var(--muted); }
+    .pc-bar {
+      position:absolute; bottom:0; left:0; right:0; height:3px;
+      background:transparent; transition:background .2s;
+    }
+    .pc.active .pc-bar { background:var(--accent); }
+    .pc-sel-dot {
+      position:absolute; top:10px; right:10px;
+      width:8px; height:8px; border-radius:50%;
+      background:var(--accent);
+      opacity:0; transition:opacity .2s;
+    }
+    .pc.active .pc-sel-dot { opacity:1; }
+
+    /* ══ CHARTS GRID ═════════════════════════ */
+    .charts-grid { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:26px; }
+    .sub-grid { display:grid; grid-template-rows:1fr 1fr; gap:14px; }
+    .cc {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:16px 18px;
+    }
+    .cc-hdr { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .cc-hdr h3 { font-size:13px; font-weight:600; }
+    .cc-hdr .sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    .ctabs { display:flex; gap:3px; }
+    .ctab { font-size:11px; padding:3px 8px; border-radius:4px; cursor:pointer;
+      color:var(--dim); border:1px solid transparent; background:none; transition:all .15s; }
+    .ctab.on { color:var(--accent); border-color:rgba(232,160,32,.3);
+      background:rgba(232,160,32,.07); }
+    .chart-wrap { position:relative; }
+
+    /* ══ INDICATORS ══════════════════════════ */
+    .ind-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px; }
+    .ic {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:16px 18px;
+    }
+    .ic h3 { font-size:11px; font-weight:700; color:var(--muted);
+      letter-spacing:.6px; margin-bottom:8px; }
+    .ic .iv { font-size:26px; font-weight:700; margin-bottom:3px; }
+    .ic .il { font-size:11px; color:var(--muted); margin-bottom:10px; }
+    .ibar { height:6px; border-radius:3px; background:var(--border);
+      position:relative; margin-bottom:7px; }
+    .ibar-f { height:100%; border-radius:3px; }
+    .ibar-m { position:absolute; top:-3px; width:12px; height:12px; border-radius:50%;
+      border:2px solid var(--bg); transform:translateX(-50%); }
+    .izones { display:flex; justify-content:space-between; font-size:10px; color:var(--muted); }
+    .sig { display:inline-flex; align-items:center;
+      padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; margin-top:7px; }
+    .sig-n { background:rgba(59,130,246,.13); color:#60a5fa; border:1px solid rgba(59,130,246,.25); }
+    .sig-b { background:rgba(34,212,122,.1); color:var(--green); border:1px solid rgba(34,212,122,.22); }
+    .sig-s { background:rgba(240,79,90,.1); color:var(--red); border:1px solid rgba(240,79,90,.22); }
+    .mr { display:flex; justify-content:space-between; margin-bottom:5px; }
+    .mr .ml { font-size:11px; color:var(--muted); }
+    .mr .mv { font-size:12px; font-weight:600; }
+
+    /* ══ BOTTOM GRID ═════════════════════════ */
+    .bot-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+    /* AI Card */
+    .ai-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:20px 22px;
+    }
+    .ai-hdr { display:flex; align-items:center; gap:9px; margin-bottom:14px; }
+    .ai-badge { background:linear-gradient(135deg,#7c3aed,#4f46e5);
+      color:#fff; font-size:10px; font-weight:700; padding:3px 8px;
+      border-radius:4px; letter-spacing:.5px; }
+    .ai-hdr h2 { font-size:13px; font-weight:600; }
+    .ai-date { font-size:11px; color:var(--muted); margin-left:auto; }
+    .ai-sum { font-size:13px; line-height:1.75; color:var(--dim); margin-bottom:13px; }
+    .ai-sum strong { color:var(--text); }
+    .ai-buls { list-style:none; display:flex; flex-direction:column; gap:7px; margin-bottom:14px; }
+    .ai-buls li { display:flex; gap:8px; font-size:12.5px; line-height:1.6; color:var(--dim); align-items:flex-start; }
+    .ai-buls li strong { color:var(--text); }
+    .bi { flex-shrink:0; margin-top:2px; }
+    .sent { display:flex; gap:12px; padding-top:12px; border-top:1px solid var(--border); }
+    .si { display:flex; flex-direction:column; gap:3px; flex:1; }
+    .si .sl { font-size:10px; color:var(--muted); font-weight:700; letter-spacing:.4px; }
+    .sbw { display:flex; align-items:center; gap:6px; }
+    .sbt { flex:1; height:5px; background:var(--border); border-radius:2px; }
+    .sbf { height:100%; border-radius:2px; }
+    .sp  { font-size:11px; font-weight:700; }
+
+    /* News Card */
+    .news-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:12px; padding:20px 22px;
+    }
+    .nl { display:flex; flex-direction:column; }
+    .ni { display:flex; flex-direction:column; gap:4px; padding:11px 0;
+      border-bottom:1px solid var(--border); cursor:pointer; }
+    .ni:last-child { border-bottom:none; }
+    .ni:hover .nh { color:var(--accent); }
+    .nm { display:flex; align-items:center; gap:7px; }
+    .nsrc { font-size:10px; font-weight:700; letter-spacing:.4px;
+      padding:2px 7px; border-radius:3px; }
+    .s-r { background:rgba(232,160,32,.13); color:var(--accent); }
+    .s-b { background:rgba(59,130,246,.13); color:#60a5fa; }
+    .s-p { background:rgba(240,79,90,.12); color:var(--red); }
+    .s-i { background:rgba(168,85,247,.13); color:#c084fc; }
+    .s-a { background:rgba(34,212,122,.1); color:var(--green); }
+    .s-c { background:rgba(6,182,212,.13); color:#22d3ee; }
+    .nt { font-size:10px; color:var(--muted); }
+    .nh { font-size:12.5px; font-weight:600; color:var(--text); line-height:1.4; transition:color .15s; }
+    .ns { font-size:11px; color:var(--muted); line-height:1.4; }
+
+    /* ══ FOOTER ══════════════════════════════ */
+    footer { text-align:center; padding:22px; border-top:1px solid var(--border);
+      color:var(--muted); font-size:11px; margin-top:20px; }
+    footer a { color:var(--accent); text-decoration:none; }
+
+    /* ══ RESPONSIVE ══════════════════════════ */
+    @media(max-width:1200px){
+      .product-selector { grid-template-columns:repeat(3,1fr); }
+      .ind-grid { grid-template-columns:repeat(2,1fr); }
+      .bot-grid { grid-template-columns:1fr; }
+    }
+    @media(max-width:900px){
+      .charts-grid { grid-template-columns:1fr; }
+      .sub-grid { grid-template-rows:none; grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:640px){
+      main { padding:14px 12px 40px; }
+      .product-selector { grid-template-columns:repeat(2,1fr); }
+      .sub-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ NAVBAR ══════════════════ -->
+<nav>
+  <a class="nav-brand" href="index.html">
+    <div class="logo">⛽</div>
+    <span>U<span class="hl">pen</span></span>
+  </a>
+  <div class="nav-links">
+    <a href="index.html" class="on">Dashboard</a>
+    <a href="trades.html">Trades &amp; Performance</a>
+    <a href="about.html">About Upen</a>
+  </div>
+  <div class="nav-r">
+    <div class="mkts" id="mkts"></div>
+    <div class="mkt-sep"></div>
+    <span class="nav-clk" id="clk">--:-- UTC</span>
+  </div>
+</nav>
+
+<!-- ══════════════ TICKER ═══════════════════ -->
+<div class="ticker-wrap">
+  <div class="ticker-lbl">LIVE PRICES</div>
+  <div class="ticker-scroll">
+    <div class="ticker-track" id="tt"></div>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN ═════════════════════ -->
+<main>
+
+  <!-- PRODUCT SELECTOR -->
+  <div class="sh">
+    <h2>Select Product</h2>
+    <div class="sdiv"></div>
+    <span class="pill" id="selectedLabel">WTI Crude</span>
+  </div>
+  <div class="product-selector" id="productSelector"></div>
+
+  <!-- CHARTS -->
+  <div class="sh">
+    <h2>Price Charts</h2><div class="sdiv"></div>
+    <span class="pill" id="chartPill">30D</span>
+  </div>
+  <div class="charts-grid">
+    <div class="cc">
+      <div class="cc-hdr">
+        <div>
+          <h3 id="c1Title">—</h3>
+          <div class="sub" id="c1Sub">—</div>
+        </div>
+        <div class="ctabs">
+          <button class="ctab on">1M</button>
+          <button class="ctab">3M</button>
+          <button class="ctab">6M</button>
+          <button class="ctab">1Y</button>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:265px"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="sub-grid">
+      <div class="cc">
+        <div class="cc-hdr">
+          <div>
+            <h3 id="c2Title">—</h3>
+            <div class="sub" id="c2Sub">—</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:100px"><canvas id="c2"></canvas></div>
+      </div>
+      <div class="cc">
+        <div class="cc-hdr">
+          <div>
+            <h3 id="c3Title">—</h3>
+            <div class="sub" id="c3Sub">—</div>
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:100px"><canvas id="c3"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INDICATORS -->
+  <div class="sh">
+    <h2>Technical Indicators</h2><div class="sdiv"></div>
+    <span class="pill" id="indPill">WTI</span>
+  </div>
+  <div class="ind-grid">
+
+    <div class="ic">
+      <h3>RSI (14-DAY)</h3>
+      <div class="iv" id="i-rsi-val">—</div>
+      <div class="il" id="i-rsi-lbl">—</div>
+      <div class="ibar">
+        <div class="ibar-f" id="i-rsi-fill" style="width:0%"></div>
+        <div class="ibar-m" id="i-rsi-mark" style="left:0%"></div>
+      </div>
+      <div class="izones">
+        <span>0 Oversold</span><span>30</span><span>70</span><span>100 Overbought</span>
+      </div>
+      <div class="sig" id="i-rsi-sig">—</div>
+    </div>
+
+    <div class="ic">
+      <h3>MACD (12/26/9)</h3>
+      <div class="iv" id="i-macd-val">—</div>
+      <div class="il">Moving Avg Convergence / Divergence</div>
+      <div class="mr"><span class="ml">MACD Line</span><span class="mv" id="i-m-line">—</span></div>
+      <div class="mr"><span class="ml">Signal Line</span><span class="mv" id="i-m-sig">—</span></div>
+      <div class="mr"><span class="ml">Histogram</span><span class="mv" id="i-m-hist">—</span></div>
+      <div class="mr"><span class="ml">Crossover</span><span class="mv" id="i-m-cross">—</span></div>
+      <div class="sig" id="i-macd-sig">—</div>
+    </div>
+
+    <div class="ic">
+      <h3>MOVING AVERAGES</h3>
+      <div class="iv" id="i-ma-val">—</div>
+      <div class="il">Price vs. key MA levels</div>
+      <div class="mr"><span class="ml">MA 20</span><span class="mv" id="i-ma20">—</span></div>
+      <div class="mr"><span class="ml">MA 50</span><span class="mv" id="i-ma50">—</span></div>
+      <div class="mr"><span class="ml">MA 100</span><span class="mv" id="i-ma100">—</span></div>
+      <div class="mr"><span class="ml">MA 200</span><span class="mv" id="i-ma200">—</span></div>
+      <div class="mr"><span class="ml">vs MA200</span><span class="mv" id="i-mavs">—</span></div>
+      <div class="sig" id="i-ma-sig">—</div>
+    </div>
+
+    <div class="ic">
+      <h3>VOLATILITY INDEX</h3>
+      <div class="iv" id="i-vol-val">—</div>
+      <div class="il" id="i-vol-lbl">—</div>
+      <div class="ibar">
+        <div class="ibar-f" id="i-vol-fill" style="width:0%"></div>
+        <div class="ibar-m" id="i-vol-mark" style="left:0%"></div>
+      </div>
+      <div class="izones"><span>0</span><span>Low &lt;20</span><span>High &gt;45</span><span>100</span></div>
+      <div class="sig" id="i-vol-sig">—</div>
+    </div>
+
+  </div>
+
+  <!-- AI + NEWS -->
+  <div class="sh" style="margin-top:26px">
+    <h2>AI Analysis &amp; Global News</h2><div class="sdiv"></div>
+  </div>
+  <div class="bot-grid">
+
+    <div class="ai-card">
+      <div class="ai-hdr">
+        <div class="ai-badge">AI ANALYSIS</div>
+        <h2 id="ai-title">—</h2>
+        <span class="ai-date">Week of Mar 10–15, 2026</span>
+      </div>
+      <p class="ai-sum" id="ai-sum">—</p>
+      <ul class="ai-buls" id="ai-buls"></ul>
+      <div class="sent">
+        <div class="si">
+          <div class="sl">BULLISH FACTORS</div>
+          <div class="sbw">
+            <div class="sbt"><div class="sbf up" id="sent-bull" style="width:0%"></div></div>
+            <div class="sp up" id="sent-bull-pct">—</div>
+          </div>
+        </div>
+        <div class="si">
+          <div class="sl">BEARISH FACTORS</div>
+          <div class="sbw">
+            <div class="sbt"><div class="sbf dn" id="sent-bear" style="width:0%"></div></div>
+            <div class="sp dn" id="sent-bear-pct">—</div>
+          </div>
+        </div>
+        <div class="si">
+          <div class="sl">OUTLOOK</div>
+          <div class="sig" id="sent-outlook">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="news-card">
+      <div class="sh" style="margin-bottom:8px">
+        <h2 style="font-size:13px">Global News</h2>
+        <div class="sdiv"></div>
+        <span class="pill" style="font-size:10px" id="newsPill">WTI</span>
+      </div>
+      <div class="nl" id="news-list"></div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <p>Upen &nbsp;|&nbsp; For informational purposes only. Not financial advice. &nbsp;|&nbsp;
+  <a href="trades.html">Recent Trades &amp; Performance</a> &nbsp;·&nbsp; <a href="about.html">About Upen</a></p>
+  <p style="margin-top:5px;font-size:10px;color:#2a3d55">&copy; 2026 Upen. Data shown is illustrative.</p>
+</footer>
+
+<!-- ══════════════ SCRIPTS ══════════════════ -->
+<script>
+/* ─── Clock + Market Status ─────────────── */
+const MKT_DEF=[
+  { id:'sgx',  label:'SGX',   tz:'Asia/Singapore',  open:9,  close:18 },
+  { id:'ice',  label:'ICE',   tz:'Europe/London',    open:8,  close:18 },
+  { id:'nymex',label:'NYMEX', tz:'America/New_York', open:9,  close:17.5 },
+];
+function localHour(tz){
+  const d=new Date();
+  const loc=new Date(d.toLocaleString('en-US',{timeZone:tz}));
+  return loc.getHours()+loc.getMinutes()/60;
+}
+function isWeekday(){ const d=new Date().getUTCDay(); return d>=1&&d<=5; }
+function updateNav(){
+  const n=new Date();
+  document.getElementById('clk').textContent=n.toUTCString().slice(17,25)+' UTC';
+  const wd=isWeekday();
+  const mktsEl=document.getElementById('mkts');
+  if(mktsEl){
+    mktsEl.innerHTML=MKT_DEF.map((m,i)=>{
+      const h=localHour(m.tz);
+      const open=wd && h>=m.open && h<m.close;
+      return `${i>0?'<div class="mkt-sep"></div>':''}
+        <div class="mkt">
+          <div class="mkt-dot ${open?'open':'closed'}"></div>
+          <span class="mkt-name">${m.label}</span>
+          <span class="mkt-status ${open?'open':'closed'}">${open?'Open':'Closed'}</span>
+        </div>`;
+    }).join('');
+  }
+}
+setInterval(updateNav,1000);
+updateNav();
+
+/* ─── Ticker ─────────────────────────────── */
+const TICK=[
+  {n:'WTI',   p:71.42, c:+1.24},{n:'BRENT',  p:75.18, c:+0.98},
+  {n:'DUBAI', p:73.61, c:+0.74},{n:'NAPH',   p:628.0, c:+4.10},
+  {n:'BENZ',  p:852.5, c:-6.20},{n:'TOLU',   p:718.0, c:+2.80},
+  {n:'STYR',  p:982.5, c:-12.5},{n:'NAT GAS',p:3.14,  c:-0.08},
+  {n:'GASOIL',p:691.5, c:+6.50},{n:'RBOB',   p:2.28,  c:+0.03},
+  {n:'CRACK', p:26.40, c:+0.55},{n:'ETS CO2', p:62.10, c:+0.40},
+  {n:'LNG',   p:13.45, c:-0.20},{n:'FUEL OIL',p:410.5, c:-2.50},
+];
+(function buildTick(){
+  const t=document.getElementById('tt');
+  const rows=[...TICK,...TICK];
+  t.innerHTML=rows.map(x=>{
+    const u=x.c>=0,s=u?'+':'';
+    const pr=x.p<20?x.p.toFixed(2):x.p<100?x.p.toFixed(2):x.p.toFixed(1);
+    return `<div class="ti"><span class="ti-n">${x.n}</span>
+      <span class="ti-p">${pr}</span>
+      <span class="ti-c ${u?'up':'dn'}">${s}${x.c.toFixed(2)}</span></div>`;
+  }).join('');
+})();
+
+/* ─── Price generator ───────────────────── */
+function gen(start, vol, n, seed){
+  let s=seed, p=[start];
+  for(let i=1;i<n;i++){
+    s=(s*9301+49297)%233280;
+    p.push(+(p[i-1]+(s/233280-.48)*vol).toFixed(2));
+  }
+  return p;
+}
+const L30=(()=>{
+  const d=[];
+  for(let i=29;i>=0;i--){
+    const dt=new Date(2026,2,15-i);
+    d.push(dt.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+  }
+  return d;
+})();
+
+/* ─── Product Data ──────────────────────── */
+const P={
+  wti:{
+    id:'wti',name:'WTI Crude',icon:'🛢️',price:71.42,change:+1.24,pct:+1.77,unit:'USD/bbl',
+    col:'#22d47a',cbg:'rgba(34,212,122,.07)',
+    c1t:'WTI Crude — 30 Day',c1s:'Front-month NYMEX futures (USD/bbl)',c1d:gen(70.2,.85,30,1001),
+    c2t:'Brent–WTI Spread',c2s:'Daily differential (USD/bbl)',c2d:gen(3.8,.25,30,2001),
+    c3t:'Natural Gas (Henry Hub)',c3s:'USD/MMBtu',c3d:gen(3.2,.12,30,3001),c3c:'#f04f5a',
+    rsiV:57.3,rsiL:'Neutral Territory',rsiT:'n',
+    macdL:+0.84,macdS:+0.51,macdH:+0.33,macdX:'Bullish (3d ago)',macdT:'b',
+    ma20:69.87,ma50:68.14,ma100:71.03,ma200:73.55,maVs:-2.1,maT:'b',
+    volV:31.2,volL:'Moderate Volatility',volT:'n',
+    at:'WTI Crude Weekly Brief',
+    as:'Crude markets posted a <strong>third consecutive week of gains</strong>, with WTI closing near $71.40/bbl — its highest since mid-January. The rally is driven by OPEC+ discipline, China demand recovery, and a surprise EIA inventory draw.',
+    ab:[
+      ['up','<strong>OPEC+ compliance</strong> above 92%; Saudi Arabia extending voluntary 1 mb/d cut through Q2 2026, putting a solid floor near $68–70/bbl.'],
+      ['go','<strong>China demand</strong> continues to beat estimates — March implied run rates at ~11.4 mb/d, exceeding consensus by 400 kb/d.'],
+      ['dn','<strong>EIA draw of 2.1 mb</strong> vs consensus build of 0.8 mb — a bullish surprise that propelled the mid-week rally through $71 resistance.'],
+      ['bl','<strong>Geopolitical risk premium</strong> compressed to ~$1.50/bbl on a Red Sea ceasefire framework, easing a prior $2–3 shipping surcharge.'],
+      ['go','<strong>Backwardation deepening</strong>: M1/M6 spread widened to −$1.82, signalling tight H2 2026 supply expectations. Watch $72.50 resistance.'],
+    ],
+    bull:68,bear:32,out:'↑ Cautiously Bullish',outT:'b',
+    news:[
+      {s:'REUTERS',sc:'s-r',t:'2h ago',h:'Saudi Aramco confirms Q1 OSP hike for Asia; Arab Light up $0.60/bbl',x:'The state producer raised official selling prices for April lifting, signalling confidence in Asian demand recovery heading into Q2.'},
+      {s:'BLOOMBERG',sc:'s-b',t:'3h ago',h:'OPEC+ holds emergency call; output cut extension on the table ahead of April meeting',x:'Sources suggest the alliance is considering extending cuts by another quarter as macro headwinds from weak European demand persist.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'5h ago',h:'U.S. shale output edges lower in March — EIA DPR shows Permian flat at 6.1 mb/d',x:'Rig counts continue their gradual decline, with Permian production stagnating amid cost inflation and wider differentials.'},
+      {s:'ICIS',sc:'s-i',t:'7h ago',h:'WTI contango narrows as Cushing stocks draw ahead of refinery turnaround season',x:'Cushing inventories have declined for a third consecutive week, supporting WTI prompt structure into backwardation.'},
+      {s:'REUTERS',sc:'s-r',t:'9h ago',h:'EIA weekly crude report: draw of 2.1 mb beats consensus build of 0.8 mb — WTI jumps $0.70',x:'The surprise draw, combined with declining implied demand, sent WTI sharply higher in early New York trade Wednesday.'},
+    ]
+  },
+  brent:{
+    id:'brent',name:'Brent Crude',icon:'🌊',price:75.18,change:+0.98,pct:+1.32,unit:'USD/bbl',
+    col:'#e8a020',cbg:'rgba(232,160,32,.07)',
+    c1t:'Brent Crude — 30 Day',c1s:'ICE front-month futures (USD/bbl)',c1d:gen(73.8,.80,30,1002),
+    c2t:'Brent–Dubai Spread',c2s:'Daily differential (USD/bbl)',c2d:gen(1.6,.18,30,2002),
+    c3t:'ICE Gasoil',c3s:'USD/mt',c3d:gen(688,6.5,30,3002),c3c:'#a855f7',
+    rsiV:59.8,rsiL:'Neutral-Bullish',rsiT:'n',
+    macdL:+1.02,macdS:+0.64,macdH:+0.38,macdX:'Bullish (4d ago)',macdT:'b',
+    ma20:73.40,ma50:71.80,ma100:74.20,ma200:77.10,maVs:-2.5,maT:'b',
+    volV:29.8,volL:'Moderate Volatility',volT:'n',
+    at:'Brent Crude Weekly Brief',
+    as:'Brent held <strong>above $75/bbl for a second consecutive week</strong>, supported by tight North Sea supply and positive IEA demand revisions. The Brent/WTI premium held at $3.76, reflecting strong European and Asian refinery pull.',
+    ab:[
+      ['up','<strong>North Sea loadings</strong> revised down 4% for April — the Forties stream tightening underpins Brent above $74 and strengthens prompt physical differentials.'],
+      ['go','<strong>IEA revised 2026 demand</strong> up 200 kb/d to 103.9 mb/d, citing stronger Asian petrochemical feedstock demand and an improving U.S. driving season outlook.'],
+      ['up','<strong>Brent M1/M6 backwardation</strong> deepened to −$2.10 — the strongest structure since October 2025, reflecting tight prompt physical availability globally.'],
+      ['dn','<strong>CPC blend disruption</strong> of ~150 kb/d due to Black Sea weather temporarily adds tension to North Sea complex — expected to resolve in 2 weeks.'],
+      ['bl','<strong>Shell Pernis maintenance</strong> reduces one of Europe\'s largest Brent processing units through end-March, supporting near-term North Sea differentials.'],
+    ],
+    bull:72,bear:28,out:'↑ Bullish',outT:'b',
+    news:[
+      {s:'BLOOMBERG',sc:'s-b',t:'2h ago',h:"North Sea Forties programme revised down 4% for April — Brent benchmark tightens",x:'The flagship North Sea crude stream will see reduced April loadings, underpinning the physical Brent complex above $74 support.'},
+      {s:'REUTERS',sc:'s-r',t:'4h ago',h:'IEA raises 2026 demand forecast by 200 kb/d; OECD inventories 3% below 5-yr average',x:'The Paris-based agency cited stronger Asian demand and U.S. summer driving projections in its upward revision.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'6h ago',h:'Brent backwardation deepens: M1/M6 at -$2.10, widest since October 2025',x:'Strengthening time structure reflects tight prompt physical availability with global floating storage at multi-year lows.'},
+      {s:'REUTERS',sc:'s-r',t:'8h ago',h:"Kazakhstan's CPC loadings disrupted by Black Sea weather; 150 kb/d offline",x:'Force majeure conditions have temporarily reduced CPC throughput, adding to tight medium-sour Mediterranean supply.'},
+      {s:'BLOOMBERG',sc:'s-b',t:'11h ago',h:'Shell Pernis refinery maintenance reduces Brent crude intake through end-March',x:'The Rotterdam maintenance, expected 2-3 weeks, reduces one of Europe\'s largest crude processing units.'},
+    ]
+  },
+  naphtha:{
+    id:'naphtha',name:'Naphtha',icon:'⚗️',price:628.0,change:+4.10,pct:+0.66,unit:'USD/mt',
+    col:'#3b82f6',cbg:'rgba(59,130,246,.07)',
+    c1t:'Naphtha — 30 Day',c1s:'CFR Japan / NWE ARA spot (USD/mt)',c1d:gen(618,5.5,30,1003),
+    c2t:'Naphtha Crack vs Brent',c2s:'Feedstock margin (USD/mt)',c2d:gen(-38,3.5,30,2003),
+    c3t:'Ethylene (NEA Spot)',c3s:'USD/mt',c3d:gen(820,9.0,30,3003),c3c:'#06b6d4',
+    rsiV:44.2,rsiL:'Neutral-Bearish',rsiT:'n',
+    macdL:-2.10,macdS:-1.50,macdH:-0.60,macdX:'Bearish (8d ago)',macdT:'s',
+    ma20:631,ma50:635,ma100:628,ma200:645,maVs:-2.6,maT:'s',
+    volV:28.4,volL:'Moderate Volatility',volT:'n',
+    at:'Naphtha Market Weekly Brief',
+    as:'Naphtha markets are finding <strong>tentative support from recovering Asian cracker economics</strong> and tightening European ARA stocks. Q2 European cracker maintenance and crude-linked headwinds keep the risk/reward balanced near term.',
+    ab:[
+      ['up','<strong>ARA stocks</strong> at 3-year seasonal lows — European supply unusually tight following extended Norwegian maintenance and lower North Sea condensate output.'],
+      ['up','<strong>Asia cracker margins</strong> turned positive for the first time in Q1 2026, boosting feedstock pull from NEA complexes and improving CFR Japan demand significantly.'],
+      ['dn','<strong>European cracker maintenance</strong> in Q2 expected to weigh on demand — BASF, INEOS, and LyondellBasell turnarounds reducing ~0.3 mb/d of naphtha intake.'],
+      ['go','<strong>Saudi SABIC</strong> cracker output increase lifting Middle East naphtha export demand, creating a competitive arbitrage dynamic with ARA-origin supply.'],
+      ['bl','<strong>CFR Japan vs NWE spread</strong> narrowed to $8/mt on freight recovery — arb flow economics incentivising East-West movements to balance regional supply.'],
+    ],
+    bull:55,bear:45,out:'→ Neutral / Cautiously Bullish',outT:'n',
+    news:[
+      {s:'ICIS',sc:'s-i',t:'2h ago',h:'European naphtha cracks recover on tight North Sea supply — ARA stocks at 3-yr seasonal low',x:'Petrochemical feedstock margins improved for the first time in six weeks as crude rallied and cracker demand picked up heading into spring.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'3h ago',h:'Asia naphtha demand picks up as cracker margins turn positive for first time in Q1 2026',x:'Northeast Asian petrochemical producers increased naphtha procurement following two months of below-cost operations.'},
+      {s:'REUTERS',sc:'s-r',t:'5h ago',h:'Middle East naphtha exports to Asia surge 15% MoM as Saudi SABIC ramps cracker output',x:'Increased Saudi cracker utilisation is tightening domestic availability and boosting Middle East spot export volumes.'},
+      {s:'ARGUS',sc:'s-a',t:'7h ago',h:'CFR Japan naphtha premium over NWE narrows to $8/mt on freight recovery',x:'East-West naphtha arbitrage opportunities are opening as trans-Pacific freight compresses, incentivising cargo movements from Europe.'},
+      {s:'ICIS',sc:'s-i',t:'10h ago',h:'European cracker shutdowns to reduce Q2 naphtha demand by 0.3 mb/d',x:'Scheduled maintenance at major European ethylene crackers will significantly reduce naphtha intake during April–June.'},
+    ]
+  },
+  benzene:{
+    id:'benzene',name:'Benzene',icon:'🔬',price:852.5,change:-6.20,pct:-0.72,unit:'USD/mt',
+    col:'#a855f7',cbg:'rgba(168,85,247,.07)',
+    c1t:'Benzene — 30 Day',c1s:'FOB ARA / CFR Asia spot (USD/mt)',c1d:gen(875,7.5,30,1004),
+    c2t:'Benzene–Naphtha Spread',c2s:'Processing margin (USD/mt)',c2d:gen(248,8.0,30,2004),
+    c3t:'Paraxylene (CFR Asia)',c3s:'USD/mt',c3d:gen(920,10.0,30,3004),c3c:'#ec4899',
+    rsiV:38.7,rsiL:'Approaching Oversold',rsiT:'s',
+    macdL:-8.40,macdS:-5.20,macdH:-3.20,macdX:'Bearish (12d ago)',macdT:'s',
+    ma20:860,ma50:872,ma100:848,ma200:905,maVs:-5.8,maT:'s',
+    volV:35.6,volL:'Elevated Volatility',volT:'n',
+    at:'Benzene Market Weekly Brief',
+    as:'Benzene remains under <strong>structural bearish pressure</strong>, with new Chinese coal-to-chemical capacity continuing to weigh on global balances. The benzene/naphtha spread at $225/mt is approaching the floor for economic production.',
+    ab:[
+      ['dn','<strong>New Chinese capacity</strong> adding ~1.5 mt/yr annually — structural oversupply is building and unlikely to self-correct before H2 2027 absent meaningful production curtailments.'],
+      ['dn','<strong>Benzene/naphtha spread</strong> at $225/mt: approaching the floor at which European cracker-derived benzene extraction becomes uneconomic, with curtailments possible.'],
+      ['dn','<strong>Gulf Coast restarts</strong> of benzene extraction units weighing on U.S. spot prices; Corpus Christi values trading at significant discounts to European equivalents.'],
+      ['go','<strong>Paraxylene/PTA chain</strong> remains structurally weak — key downstream derivative demand subdued amid persistent Asian polyester sector overcapacity.'],
+      ['bl','<strong>Watch $200/mt</strong> benzene/naphtha spread — if breached, European producer curtailments should emerge as a bullish catalyst within 4–6 weeks.'],
+    ],
+    bull:28,bear:72,out:'↓ Bearish',outT:'s',
+    news:[
+      {s:'ICIS',sc:'s-i',t:'1h ago',h:'U.S. benzene spot hits 18-month low as Gulf Coast production restarts weigh on market',x:'Multiple benzene extraction unit restarts along the Texas Gulf Coast are pressuring U.S. spot prices below FOB ARA equivalents.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'3h ago',h:'Asia benzene at $855/mt CFR, down 8% from February peak amid styrene plant outages',x:'Weaker downstream styrene demand and new Chinese coal-to-chemical supply are pressuring CFR Asia benzene values.'},
+      {s:'CHEM. WEEK',sc:'s-c',t:'5h ago',h:'European benzene oversupply persists into Q2 as paraxylene demand disappoints',x:'European benzene producers are struggling to clear export surpluses as the paraxylene/polyester chain remains under-utilised.'},
+      {s:'REUTERS',sc:'s-r',t:'8h ago',h:'Chinese benzene imports drop 12% in February — domestic overcapacity from new coal-to-chemical plants',x:"China's domestic benzene production has increased with new facility startups, reducing the country's need for imported material."},
+      {s:'ARGUS',sc:'s-a',t:'12h ago',h:'Benzene/naphtha spread at $225/mt, lowest since July 2024; downstream margins squeezed',x:'The narrow processing margin is approaching the economic floor for European cracker benzene extraction, potentially triggering curtailments.'},
+    ]
+  },
+  toluene:{
+    id:'toluene',name:'Toluene',icon:'🧪',price:718.0,change:+2.80,pct:+0.39,unit:'USD/mt',
+    col:'#06b6d4',cbg:'rgba(6,182,212,.07)',
+    c1t:'Toluene — 30 Day',c1s:'FOB Korea / FOB ARA spot (USD/mt)',c1d:gen(710,5.0,30,1005),
+    c2t:'Toluene–Naphtha Spread',c2s:'Processing margin (USD/mt)',c2d:gen(95,5.0,30,2005),
+    c3t:'Benzene (FOB ARA)',c3s:'USD/mt — feedstock comparator',c3d:gen(875,7.5,30,3005),c3c:'#a855f7',
+    rsiV:52.1,rsiL:'Neutral Territory',rsiT:'n',
+    macdL:+1.80,macdS:+0.90,macdH:+0.90,macdX:'Bullish (5d ago)',macdT:'b',
+    ma20:712,ma50:708,ma100:715,ma200:730,maVs:-1.6,maT:'b',
+    volV:24.8,volL:'Low-Moderate Volatility',volT:'n',
+    at:'Toluene Market Weekly Brief',
+    as:'Toluene has shown <strong>relative resilience</strong> in the aromatic complex, outperforming benzene on stronger U.S. gasoline blending demand and improving TDI/polyurethane sector fundamentals heading into spring.',
+    ab:[
+      ['up','<strong>U.S. spring gasoline season</strong> lifting toluene blending demand — octane premium to unleaded widening to $55/mt as refinery run rates increase for peak driving season.'],
+      ['up','<strong>TDI/polyurethane sector</strong> improving as automotive demand recovers in Europe and North America; MDI producer forward order books signal improving run rates in Q2.'],
+      ['go','<strong>Korea export arb</strong> to the U.S. Gulf has opened — Korean producers shipping cargoes to the Americas as Asian domestic demand softens, tightening FOB Korea values.'],
+      ['go','<strong>Toluene/naphtha spread</strong> at $92/mt — comfortably above the $70/mt breakeven for most reformer-derived production, providing a margin floor for the market.'],
+      ['bl','<strong>European disproportionation units</strong> increasing utilisation to produce benzene substitute — tightening toluene supply and supporting prompt European values.'],
+    ],
+    bull:58,bear:42,out:'↑ Cautiously Bullish',outT:'b',
+    news:[
+      {s:'ICIS',sc:'s-i',t:'2h ago',h:'Toluene solvent demand picks up in North America ahead of spring coatings season',x:'Paint and coatings manufacturers are increasing toluene procurement for spring production runs, supporting U.S. spot prices.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'4h ago',h:'Asia toluene export arb from South Korea opens; cargoes flowing to U.S. Gulf',x:'Reduced Korean domestic toluene availability and an open trans-Pacific arb window are driving export flows to the Americas.'},
+      {s:'CHEM. WEEK',sc:'s-c',t:'6h ago',h:'European toluene tightens as disproportionation units raise rates to produce benzene substitute',x:'BSTF/STDP units are increasing toluene conversion to benzene as economics improve, tightening European toluene availability.'},
+      {s:'REUTERS',sc:'s-r',t:'9h ago',h:'EPA clean air rules boost toluene demand as octane enhancer in reformulated gasoline',x:'New clean air requirements for Q2 reformulated gasoline blending are increasing toluene demand from the U.S. refining sector.'},
+      {s:'ICIS',sc:'s-i',t:'12h ago',h:'TDI feedstock toluene upticks as polyurethane demand improves in automotive sector',x:'European and North American TDI producers indicating higher Q2 operating rates, supporting toluene demand from the chemical sector.'},
+    ]
+  },
+  styrene:{
+    id:'styrene',name:'Styrene',icon:'🧬',price:982.5,change:-12.50,pct:-1.26,unit:'USD/mt',
+    col:'#f04f5a',cbg:'rgba(240,79,90,.07)',
+    c1t:'Styrene — 30 Day',c1s:'CFR China / FOB ARA spot (USD/mt)',c1d:gen(1010,10.0,30,1006),
+    c2t:'Styrene–Benzene Spread',c2s:'Production margin (USD/mt)',c2d:gen(145,8.5,30,2006),
+    c3t:'Benzene (CFR Asia)',c3s:'USD/mt — feedstock cost',c3d:gen(855,7.5,30,3006),c3c:'#a855f7',
+    rsiV:33.5,rsiL:'Approaching Oversold (< 35)',rsiT:'s',
+    macdL:-15.20,macdS:-9.80,macdH:-5.40,macdX:'Bearish (15d ago)',macdT:'s',
+    ma20:995,ma50:1010,ma100:988,ma200:1045,maVs:-6.0,maT:'s',
+    volV:42.3,volL:'Elevated Volatility',volT:'s',
+    at:'Styrene Market Weekly Brief',
+    as:'Styrene is the <strong>most challenged product</strong> in the complex. New Chinese capacity of 1.2 mt/yr has overwhelmed demand growth, the styrene/benzene spread is at a three-year low of $128/mt, and RSI is approaching oversold territory.',
+    ab:[
+      ['dn','<strong>New Chinese capacity</strong> of 1.2 mt/yr commenced commercial ops in Q1 2026, flooding the domestic market and reducing import demand — a structural bearish overhang.'],
+      ['dn','<strong>Styrene/benzene spread</strong> at $128/mt — a three-year low and below the full cost of production for ~35% of global styrene capacity, pressuring industry utilisation.'],
+      ['dn','<strong>ABS/polystyrene producers</strong> cutting operating rates 20–25% — downstream demand destruction is compounding the supply-side structural weakness.'],
+      ['up','<strong>North America relief:</strong> Gulf Coast unplanned outage at LyondellBasell is creating regional tightness with U.S. spot prices diverging from the Asian bearish trend.'],
+      ['bl','<strong>Near-term range:</strong> $960–980/mt with downside risk if Chinese surplus is exported. Watch $950/mt as a potential breakdown level requiring producer curtailments.'],
+    ],
+    bull:22,bear:78,out:'↓ Bearish',outT:'s',
+    news:[
+      {s:'ICIS',sc:'s-i',t:'2h ago',h:'Asian styrene under pressure as new Chinese capacity of 1.2 mt/yr starts commercial ops',x:'The startup of large-scale Chinese styrene units has rapidly tightened the domestic balance, reducing import demand and pressuring regional prices.'},
+      {s:'CHEM. WEEK',sc:'s-c',t:'4h ago',h:'European ABS producers cut operating rates amid margin squeeze — styrene demand weakens',x:'Several major European ABS producers announced 20-25% rate reductions due to compressed downstream margins and weak automotive sector demand.'},
+      {s:'S&P PLATTS',sc:'s-p',t:'6h ago',h:'Styrene/benzene spread collapses to $128/mt — lowest in three years as supply outpaces demand',x:'The key production margin indicator has declined sharply with a growing number of producers now operating below full cost breakeven.'},
+      {s:'REUTERS',sc:'s-r',t:'8h ago',h:'Polystyrene producers in Asia roll back April price hike attempts as monomer costs weigh',x:'Chinese and Korean polystyrene makers withdrew planned price increases after buyers resisted, citing weak packaging and electronics demand.'},
+      {s:'ICIS',sc:'s-i',t:'11h ago',h:'North America styrene: Gulf Coast supply tightens on unplanned outage at LyondellBasell unit',x:'The unplanned outage has temporarily reduced Gulf Coast availability, providing some support to U.S. spot prices while Asia remains under pressure.'},
+    ]
+  }
+};
+const ORDER=['wti','brent','naphtha','benzene','toluene','styrene'];
+
+/* ─── Build product cards ────────────────── */
+function buildCards(){
+  const el=document.getElementById('productSelector');
+  el.innerHTML=ORDER.map(k=>{
+    const d=P[k], u=d.change>=0;
+    const s=u?'+':'', cname=u?'up':'dn';
+    const pr=d.price<100?'$'+d.price.toFixed(2):'$'+d.price.toFixed(1);
+    return `<div class="pc" id="pc-${k}" data-id="${k}"
+      onclick="selectProduct('${k}')">
+      <div class="pc-sel-dot"></div>
+      <div class="pc-top">
+        <span class="pc-icon">${d.icon}</span>
+        <span class="pc-name">${d.name}</span>
+      </div>
+      <div class="pc-price">${pr}</div>
+      <div class="pc-chg ${cname}">${u?'▲':'▼'} ${s}${d.change.toFixed(2)} (${s}${d.pct.toFixed(2)}%)</div>
+      <div class="pc-unit">${d.unit}</div>
+      <div class="pc-bar"></div>
+    </div>`;
+  }).join('');
+}
+buildCards();
+
+/* ─── Chart instances ────────────────────── */
+const baseOpts={
+  responsive:true, maintainAspectRatio:false,
+  animation:{duration:500},
+  plugins:{
+    legend:{display:false},
+    tooltip:{
+      backgroundColor:'#0d1628', borderColor:'#1c2d45', borderWidth:1,
+      titleColor:'#dce8f8', bodyColor:'#8fa3bd', padding:9,
+    }
+  },
+  scales:{
+    x:{grid:{color:'rgba(28,45,69,.5)',drawBorder:false},
+       ticks:{color:'#5e7690',font:{size:10},maxTicksLimit:7}},
+    y:{grid:{color:'rgba(28,45,69,.5)',drawBorder:false},
+       ticks:{color:'#5e7690',font:{size:10},callback:v=>'$'+v}}
+  }
+};
+function mkOpts(maxTicks){
+  return {...baseOpts, scales:{
+    x:{...baseOpts.scales.x, ticks:{...baseOpts.scales.x.ticks, maxTicksLimit:maxTicks||7}},
+    y:{...baseOpts.scales.y}
+  }};
+}
+
+let ch1,ch2,ch3;
+
+function initCharts(d){
+  if(ch1) ch1.destroy();
+  if(ch2) ch2.destroy();
+  if(ch3) ch3.destroy();
+
+  ch1=new Chart(document.getElementById('c1'),{
+    type:'line',
+    data:{
+      labels:L30,
+      datasets:[{
+        label:d.name, data:d.c1d,
+        borderColor:d.col, backgroundColor:d.cbg,
+        borderWidth:2, pointRadius:0, pointHoverRadius:4,
+        fill:true, tension:.35
+      }]
+    },
+    options:mkOpts(8)
+  });
+
+  ch2=new Chart(document.getElementById('c2'),{
+    type:'bar',
+    data:{
+      labels:L30,
+      datasets:[{
+        label:d.c2t, data:d.c2d,
+        backgroundColor:d.c2d.map(v=>v>=0?'rgba(59,130,246,.55)':'rgba(240,79,90,.55)'),
+        borderRadius:2
+      }]
+    },
+    options:{...mkOpts(5),plugins:{legend:{display:false},tooltip:baseOpts.plugins.tooltip}}
+  });
+
+  ch3=new Chart(document.getElementById('c3'),{
+    type:'line',
+    data:{
+      labels:L30,
+      datasets:[{
+        label:d.c3t, data:d.c3d,
+        borderColor:d.c3c||d.col,
+        backgroundColor:(d.c3c||d.col).replace(')',',0.06)').replace('rgb','rgba'),
+        borderWidth:2, pointRadius:0, fill:true, tension:.4
+      }]
+    },
+    options:{...mkOpts(5),plugins:{legend:{display:false},tooltip:baseOpts.plugins.tooltip}}
+  });
+}
+
+/* ─── Indicator helpers ──────────────────── */
+function sign(v){return v>=0?'+':'';}
+function fmtPrice(v,isCrude){return '$'+(isCrude?v.toFixed(2):v.toFixed(0));}
+const sigClass={b:'sig-b',n:'sig-n',s:'sig-s'};
+const sigIcon={b:'↑',n:'→',s:'↓'};
+const sigText={b:'Bullish Momentum',n:'Neutral',s:'Bearish Momentum'};
+const sigMAText={b:'Above MA20/50',n:'Mixed MA Signals',s:'Below Key MAs'};
+const sigVolText={b:'',n:'Moderate Volatility',s:'Elevated Volatility'};
+function setEl(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v;}
+function setSig(id,type,text){
+  const e=document.getElementById(id);
+  if(!e) return;
+  e.className='sig '+sigClass[type];
+  e.textContent=sigIcon[type]+' '+(text||sigText[type]);
+}
+
+/* ─── Render indicators ──────────────────── */
+function renderIndicators(d){
+  const isCrude=d.id==='wti'||d.id==='brent';
+  const fp=v=>fmtPrice(v,isCrude);
+
+  // RSI
+  setEl('i-rsi-val',d.rsiV.toFixed(1));
+  setEl('i-rsi-lbl',d.rsiL);
+  const rsiFill=document.getElementById('i-rsi-fill');
+  const rsiMark=document.getElementById('i-rsi-mark');
+  if(rsiFill){ rsiFill.style.width=d.rsiV+'%';
+    rsiFill.style.background=`linear-gradient(90deg,var(--green),${d.rsiV>70?'var(--red)':d.rsiV<30?'var(--green)':'#f59e0b'})`;
+  }
+  if(rsiMark){ rsiMark.style.left=d.rsiV+'%';
+    rsiMark.style.background=d.rsiV>70?'var(--red)':d.rsiV<30?'var(--green)':'#f59e0b';
+  }
+  setEl('i-rsi-val',`<span style="color:${d.rsiV>70?'var(--red)':d.rsiV<30?'var(--green)':'#f59e0b'}">${d.rsiV.toFixed(1)}</span>`);
+  const rsiType=d.rsiV<30?'s':d.rsiV>70?'b':'n';
+  setSig('i-rsi-sig',rsiType, d.rsiL);
+
+  // MACD
+  const mc=d.macdL>=0?'var(--green)':'var(--red)';
+  setEl('i-macd-val',`<span style="color:${mc}">${sign(d.macdL)}${d.macdL.toFixed(2)}</span>`);
+  const mfmt=v=>`<span class="${v>=0?'up':'dn'}">${sign(v)}${v.toFixed(2)}</span>`;
+  setEl('i-m-line', mfmt(d.macdL));
+  setEl('i-m-sig',  mfmt(d.macdS));
+  setEl('i-m-hist', mfmt(d.macdH));
+  setEl('i-m-cross',`<span class="${d.macdT==='b'?'up':'dn'}">${d.macdX}</span>`);
+  setSig('i-macd-sig',d.macdT, d.macdT==='b'?'↑ Bullish Momentum':d.macdT==='s'?'↓ Bearish Momentum':'→ Neutral');
+
+  // MAs
+  const maCol=d.maT==='b'?'var(--green)':d.maT==='s'?'var(--red)':'#f59e0b';
+  setEl('i-ma-val',`<span style="color:${maCol}">${d.maT==='b'?'Bullish':d.maT==='s'?'Bearish':'Neutral'}</span>`);
+  setEl('i-ma20',  fp(d.ma20));
+  setEl('i-ma50',  fp(d.ma50));
+  setEl('i-ma100', fp(d.ma100));
+  setEl('i-ma200', fp(d.ma200));
+  setEl('i-mavs',  `<span class="${d.maVs>=0?'up':'dn'}">${sign(d.maVs)}${d.maVs}%</span>`);
+  setSig('i-ma-sig',d.maT, d.maT==='b'?'↑ Above MA20/50/100':d.maT==='s'?'↓ Below Key MAs':'→ Mixed MA Signals');
+
+  // Volatility
+  const vPct=Math.min(d.volV,100);
+  const vFill=document.getElementById('i-vol-fill');
+  const vMark=document.getElementById('i-vol-mark');
+  const vCol=d.volV<25?'var(--green)':d.volV>45?'var(--red)':'#60a5fa';
+  setEl('i-vol-val',`<span style="color:${vCol}">${d.volV.toFixed(1)}</span>`);
+  setEl('i-vol-lbl',d.volL);
+  if(vFill){vFill.style.width=vPct+'%'; vFill.style.background=`linear-gradient(90deg,var(--green),${vCol})`;}
+  if(vMark){vMark.style.left=vPct+'%'; vMark.style.background=vCol;}
+  const volSigT=d.volV>45?'s':'n';
+  setSig('i-vol-sig',volSigT,d.volV>45?'↑ High Volatility':d.volV<25?'↓ Low Volatility':'→ Moderate Volatility');
+}
+
+/* ─── Render AI analysis ─────────────────── */
+const bColors={up:'var(--green)',go:'var(--accent)',dn:'var(--red)',bl:'#60a5fa'};
+const bIcons={up:'▲',go:'●',dn:'▼',bl:'◆'};
+function renderAnalysis(d){
+  setEl('ai-title',d.at);
+  setEl('ai-sum',d.as);
+  const buls=document.getElementById('ai-buls');
+  if(buls) buls.innerHTML=d.ab.map(([t,txt])=>
+    `<li><span class="bi" style="color:${bColors[t]}">${bIcons[t]}</span><span>${txt}</span></li>`
+  ).join('');
+  const bull=document.getElementById('sent-bull');
+  const bear=document.getElementById('sent-bear');
+  if(bull){bull.style.width=d.bull+'%';}
+  if(bear){bear.style.width=d.bear+'%';}
+  setEl('sent-bull-pct',`<span class="up">${d.bull}%</span>`);
+  setEl('sent-bear-pct',`<span class="dn">${d.bear}%</span>`);
+  const outEl=document.getElementById('sent-outlook');
+  if(outEl){
+    outEl.className='sig '+sigClass[d.outT];
+    outEl.textContent=d.out;
+  }
+}
+
+/* ─── Render news ────────────────────────── */
+function renderNews(d){
+  const el=document.getElementById('news-list');
+  if(!el) return;
+  el.innerHTML=d.news.map(n=>
+    `<div class="ni">
+      <div class="nm">
+        <span class="nsrc ${n.sc}">${n.s}</span>
+        <span class="nt">${n.t}</span>
+      </div>
+      <div class="nh">${n.h}</div>
+      <div class="ns">${n.x}</div>
+    </div>`
+  ).join('');
+}
+
+/* ─── Main select function ───────────────── */
+let current='wti';
+function selectProduct(k){
+  if(!P[k]) return;
+  current=k;
+  const d=P[k];
+
+  // Pill labels
+  setEl('selectedLabel',d.name);
+  setEl('indPill',d.name);
+  setEl('newsPill',d.name);
+
+  // Highlight cards
+  ORDER.forEach(id=>{
+    const el=document.getElementById('pc-'+id);
+    if(el) el.classList.toggle('active', id===k);
+  });
+
+  // Chart titles
+  setEl('c1Title',d.c1t);
+  setEl('c1Sub',d.c1s);
+  setEl('c2Title',d.c2t);
+  setEl('c2Sub',d.c2s);
+  setEl('c3Title',d.c3t);
+  setEl('c3Sub',d.c3s);
+
+  // Reinit charts
+  initCharts(d);
+
+  // Indicators
+  renderIndicators(d);
+
+  // AI analysis
+  renderAnalysis(d);
+
+  // News
+  renderNews(d);
+}
+
+/* ─── Init on load ───────────────────────── */
+selectProduct('wti');
+</script>
+</body>
+</html>
