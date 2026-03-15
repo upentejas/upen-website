@@ -72,13 +72,7 @@
       background:var(--card); display:flex; align-items:center; justify-content:center;
       flex-shrink:0;
     }
-    .photo-frame img { width:100%; height:100%; object-fit:cover; display:none; }
-    .photo-ph {
-      display:flex; flex-direction:column; align-items:center; gap:6px;
-      color:var(--muted); font-size:11px; text-align:center; padding:14px;
-    }
-    .photo-ph .ico { font-size:36px; opacity:.4; }
-    .photo-ph .hint { font-size:10px; color:var(--border2); margin-top:2px; }
+    .photo-frame img { width:100%; height:100%; object-fit:cover; }
 
     .hero-text h1 { font-size:30px; font-weight:700; line-height:1.2; margin-bottom:5px; }
     .hero-text h1 .name-hl { color:var(--accent); }
@@ -256,13 +250,8 @@
 <div class="hero">
   <div class="hero-inner">
 
-    <div class="photo-frame" title="Replace with photo">
-      <!-- Add photo: <img src="venkatesh.jpg" style="display:block"> and remove photo-ph div -->
-      <div class="photo-ph">
-        <div class="ico">👤</div>
-        <div>Photo</div>
-        <div class="hint">Replace &lt;img&gt; src</div>
-      </div>
+    <div class="photo-frame">
+      <img src="venkatesh.png" style="display:block" alt="Venkatesh Raman">
     </div>
 
     <div class="hero-text">
@@ -294,7 +283,7 @@
 
   <!-- STRATEGY -->
   <div class="sec">
-    <h2><div class="sec-ico">📈</div> Strategy — 3 SGX Aromatics Spreads</h2>
+    <h2><div class="sec-ico">📈</div> Strategy — We primarily focus on 3 aromatics spreads listed on SGX</h2>
     <div class="spread-grid">
       <div class="spread-card">
         <div class="sc-icon">🔷</div>

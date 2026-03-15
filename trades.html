@@ -179,6 +179,7 @@
 
     .expand-icon { color:var(--muted); font-size:10px; transition:transform .2s; display:inline-block; }
     .tr-row.expanded .expand-icon { transform:rotate(90deg); }
+    .b-open-row .expand-icon { color:var(--accent); font-size:12px; font-weight:700; }
 
     /* ══ NOTICE BAR ══════════════════════════ */
     .notice {
@@ -558,7 +559,7 @@ function buildSignals(){
     const pnlSign=t.pnl>=0?'+':'';
 
     html+=`
-    <tr class="tr-row" id="tr-${t.id}" onclick="toggleRat(${t.id})">
+    <tr class="tr-row${isOpen?' b-open-row':''}" id="tr-${t.id}" onclick="toggleRat(${t.id})">
       <td><span class="expand-icon">▶</span></td>
       <td><span class="badge ${isOpen?'b-open':'b-closed'}">${isOpen?'OPEN':'CLOSED'}</span></td>
       <td>
