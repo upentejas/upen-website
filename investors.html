@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>For Investors — Upen Pte Ltd</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #080d1a;
+      --surface: #0d1628;
+      --card:    #111c2e;
+      --card2:   #0f1a2b;
+      --border:  #1c2d45;
+      --border2: #243650;
+      --accent:  #e8a020;
+      --acc2:    #c07010;
+      --green:   #22d47a;
+      --red:     #f04f5a;
+      --purple:  #a855f7;
+      --muted:   #5e7690;
+      --text:    #dce8f8;
+      --dim:     #8fa3bd;
+      --font:    'Segoe UI', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; }
+
+    /* ══ NAVBAR ══════════════════════════════ */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:200;
+      height:56px; display:flex; align-items:center; justify-content:space-between;
+      padding:0 28px;
+      background:rgba(8,13,26,.97); border-bottom:1px solid var(--border);
+      backdrop-filter:blur(14px);
+    }
+    .nav-brand { display:flex; align-items:center; gap:10px; font-size:19px; font-weight:700;
+      text-decoration:none; color:var(--text); }
+    .hl { color:var(--accent); }
+    .nav-links { display:flex; gap:4px; }
+    .nav-links a { color:var(--dim); text-decoration:none; padding:6px 13px;
+      border-radius:6px; font-size:13px; font-weight:500; transition:all .2s; }
+    .nav-links a:hover, .nav-links a.on { color:var(--text); background:var(--border); }
+    .nav-links a.on { color:var(--accent); }
+
+    /* ══ HERO ════════════════════════════════ */
+    .hero {
+      padding: 110px 28px 64px;
+      background: linear-gradient(180deg, rgba(168,85,247,.06) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 11px; font-weight: 700; letter-spacing: .8px;
+      color: #c084fc; background: rgba(168,85,247,.1);
+      border: 1px solid rgba(168,85,247,.22);
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 22px;
+    }
+    .hero h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; max-width: 700px; margin-left: auto; margin-right: auto; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: 15px; color: var(--dim); line-height: 1.75; max-width: 580px; margin: 0 auto 30px; }
+    .hero-ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { background: linear-gradient(135deg,var(--accent),var(--acc2)); color: #1a1000;
+      font-size: 13px; font-weight: 700; padding: 11px 24px; border-radius: 8px;
+      text-decoration: none; transition: opacity .2s; }
+    .btn-primary:hover { opacity: .88; }
+    .btn-secondary { background: transparent; color: var(--dim); border: 1px solid var(--border2);
+      font-size: 13px; font-weight: 600; padding: 11px 24px; border-radius: 8px;
+      text-decoration: none; transition: all .2s; }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ══ LAYOUT ══════════════════════════════ */
+    main { max-width: 1100px; margin: 0 auto; padding: 60px 26px 80px; }
+    .sec { margin-bottom: 60px; }
+    .sec-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .sec-hdr h2 { font-size: 20px; font-weight: 700; }
+    .sec-tag { font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      padding: 3px 10px; border-radius: 20px;
+      background: rgba(168,85,247,.1); color: #c084fc; border: 1px solid rgba(168,85,247,.2); }
+
+    /* ══ KEY METRICS STRIP ════════════════════ */
+    .metrics-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; margin-bottom: 14px; }
+    .metric-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 18px 16px; text-align: center;
+    }
+    .metric-card .mv { font-size: 22px; font-weight: 700; line-height: 1; margin-bottom: 5px; font-variant-numeric: tabular-nums; }
+    .metric-card .ml { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: .5px; }
+    .metric-card .ms { font-size: 11px; color: var(--dim); margin-top: 4px; }
+    .metrics-note { font-size: 11px; color: var(--muted); text-align: right; }
+
+    /* ══ THESIS CARDS ════════════════════════ */
+    .thesis-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .thesis-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 20px;
+    }
+    .thesis-card .ti { font-size: 22px; margin-bottom: 12px; }
+    .thesis-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+    .thesis-card p  { font-size: 12.5px; color: var(--dim); line-height: 1.65; }
+
+    /* ══ STRATEGY GRID ════════════════════════ */
+    .spread-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .spread-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 20px;
+    }
+    .sc-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .sc-ico { font-size: 22px; }
+    .sc-name { font-size: 14px; font-weight: 700; }
+    .sc-desc { font-size: 12.5px; color: var(--dim); line-height: 1.65; margin-bottom: 12px; }
+    .sc-stats { display: flex; gap: 10px; }
+    .sc-stat { background: rgba(28,45,69,.6); border-radius: 6px; padding: 5px 10px; text-align: center; flex: 1; }
+    .sc-stat .sv { font-size: 12px; font-weight: 700; color: var(--accent); }
+    .sc-stat .sl { font-size: 9px; color: var(--muted); font-weight: 600; letter-spacing: .3px; }
+
+    /* ══ RISK SECTION ════════════════════════ */
+    .risk-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+    .risk-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px 20px; display: flex; gap: 14px;
+    }
+    .risk-ico { font-size: 22px; flex-shrink: 0; }
+    .risk-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 7px; }
+    .risk-card p  { font-size: 12.5px; color: var(--dim); line-height: 1.65; }
+
+    /* ══ TRACK RECORD ════════════════════════ */
+    .track-record {
+      background: linear-gradient(135deg, rgba(34,212,122,.07), rgba(34,212,122,.03));
+      border: 1px solid rgba(34,212,122,.2); border-radius: 12px;
+      padding: 22px 24px; display: flex; gap: 16px; align-items: flex-start;
+    }
+    .tr-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+    .tr-label { font-size: 10px; font-weight: 700; letter-spacing: .6px; color: var(--green); margin-bottom: 7px; }
+    .tr-headline { font-size: 13.5px; color: var(--dim); line-height: 1.7; }
+    .tr-profit { color: var(--green); font-weight: 700; }
+    .tr-note { margin-top: 10px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .tr-note a { color: var(--accent); text-decoration: none; }
+
+    /* ══ 5-YEAR TABLE ════════════════════════ */
+    .yr-table { width:100%; border-collapse:collapse;
+      background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .yr-table thead tr { border-bottom:2px solid var(--border); }
+    .yr-table th { font-size:10px; font-weight:700; letter-spacing:.5px; color:var(--muted);
+      padding:11px 16px; text-align:left; }
+    .yr-table td { padding:12px 16px; font-size:13px; border-bottom:1px solid rgba(28,45,69,.5); }
+    .yr-table tbody tr:last-child td { border-bottom:none; }
+    .yr-table .total-row td { font-weight:700; background:rgba(232,160,32,.04); border-top:2px solid var(--border); }
+    .profit { color:var(--green); font-weight:700; }
+
+    /* ══ EDGE SECTION ════════════════════════ */
+    .edge-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .edge-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+    }
+    .edge-card .ei { font-size: 22px; margin-bottom: 10px; }
+    .edge-card h3 { font-size: 13px; font-weight: 700; margin-bottom: 7px; }
+    .edge-card p  { font-size: 12.5px; color: var(--dim); line-height: 1.65; }
+
+    /* ══ CTA ══════════════════════════════════ */
+    .cta-block {
+      background: linear-gradient(135deg, rgba(232,160,32,.08), rgba(232,160,32,.03));
+      border: 1px solid rgba(232,160,32,.2); border-radius: 16px;
+      padding: 40px 36px; text-align: center;
+    }
+    .cta-block h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+    .cta-block p  { font-size: 14px; color: var(--dim); line-height: 1.7; max-width: 500px; margin: 0 auto 24px; }
+    .cta-contacts { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .cta-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 8px; font-size: 13px; font-weight: 700;
+      text-decoration: none; transition: opacity .2s;
+    }
+    .cta-link:hover { opacity: .85; }
+    .cta-email { background: linear-gradient(135deg,var(--accent),var(--acc2)); color: #1a1000; }
+    .cta-trades { background: rgba(168,85,247,.12); color: #c084fc; border: 1px solid rgba(168,85,247,.25); }
+
+    /* ══ FOOTER ══════════════════════════════ */
+    footer { text-align:center; padding:22px; border-top:1px solid var(--border);
+      color:var(--muted); font-size:11px; margin-top:20px; }
+    footer a { color:var(--accent); text-decoration:none; }
+
+    @media(max-width:1000px){
+      .metrics-grid { grid-template-columns:repeat(3,1fr); }
+      .thesis-grid, .spread-grid, .edge-grid { grid-template-columns:1fr 1fr; }
+    }
+    @media(max-width:700px){
+      .metrics-grid, .thesis-grid, .spread-grid, .risk-grid, .edge-grid { grid-template-columns:1fr; }
+      .hero h1 { font-size:26px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="index.html"><span>U<span class="hl">pen</span></span></a>
+  <div class="nav-links">
+    <a href="index.html">Dashboard</a>
+    <a href="plant-owners.html">For Plant Owners</a>
+    <a href="investors.html" class="on">For Investors</a>
+    <a href="trades.html">Trades &amp; Performance</a>
+    <a href="about.html">About</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">💼 For Family Offices &amp; Fund Managers</div>
+  <h1>A systematic, <span>market-neutral</span> aromatics strategy.</h1>
+  <p>Upen runs a rules-based spread trading programme on SGX aromatics derivatives — structurally uncorrelated to equity markets, with no crude oil directional exposure and a verified track record of spread calls.</p>
+  <div class="hero-ctas">
+    <a href="mailto:ven@upensg.com" class="btn-primary">✉️ &nbsp;Request strategy deck</a>
+    <a href="trades.html" class="btn-secondary">View trade log ↗</a>
+  </div>
+</div>
+
+<main>
+
+  <!-- KEY METRICS -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <h2>Strategy at a glance</h2>
+      <span class="sec-tag">INDICATIVE METRICS</span>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <div class="mv up">83%</div>
+        <div class="ml">WIN RATE</div>
+        <div class="ms">5 of 6 completed trades</div>
+      </div>
+      <div class="metric-card">
+        <div class="mv" style="color:var(--accent)">~14 days</div>
+        <div class="ml">AVG HOLD PERIOD</div>
+        <div class="ms">Short-duration positions</div>
+      </div>
+      <div class="metric-card">
+        <div class="mv up">+$1.23M</div>
+        <div class="ml">COMBINED P&amp;L (YTD)</div>
+        <div class="ms">Realised + unrealised</div>
+      </div>
+      <div class="metric-card">
+        <div class="mv" style="color:#c084fc">3</div>
+        <div class="ml">SPREAD PAIRS</div>
+        <div class="ms">All SGX-listed derivatives</div>
+      </div>
+      <div class="metric-card">
+        <div class="mv" style="color:var(--green)">0%</div>
+        <div class="ml">CRUDE EXPOSURE</div>
+        <div class="ms">Fully market-neutral</div>
+      </div>
+    </div>
+    <p class="metrics-note">Metrics based on sample illustrative trades. Full performance data available on request.</p>
+  </div>
+
+  <!-- INVESTMENT THESIS -->
+  <div class="sec">
+    <div class="sec-hdr"><h2>Why this strategy</h2></div>
+    <div class="thesis-grid">
+      <div class="thesis-card">
+        <div class="ti">🎯</div>
+        <h3>Structural mean-reversion</h3>
+        <p>SGX aromatics spreads are anchored by fundamental supply-demand economics. When they deviate from fair value — driven by cracker outages, inventory builds, or seasonal demand shifts — they reliably revert. Our model identifies and trades these windows systematically.</p>
+      </div>
+      <div class="thesis-card">
+        <div class="ti">🔗</div>
+        <h3>Uncorrelated to equities &amp; macro</h3>
+        <p>Spread returns are driven by petrochemical sector fundamentals, not interest rates, equity risk premium, or general market sentiment. This makes the strategy a genuine diversifier in a multi-asset portfolio — returns that behave independently of traditional asset classes.</p>
+      </div>
+      <div class="thesis-card">
+        <div class="ti">🏭</div>
+        <h3>Physical market information edge</h3>
+        <p>Venkatesh Raman's network across Singapore, Korea, Japan, and China's petrochemical complex provides early visibility into supply disruptions, cracker maintenance schedules, and cargo flow shifts — intelligence that is not reflected in public data and that sharpens entry and exit timing.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- STRATEGY: 3 SPREADS -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <h2>The strategy — 3 SGX aromatics spreads</h2>
+    </div>
+    <div class="spread-grid">
+      <div class="spread-card">
+        <div class="sc-top">
+          <span class="sc-ico">🔷</span>
+          <span class="sc-name">PX – Naphtha</span>
+        </div>
+        <p class="sc-desc">The flagship strategy. PX demand is driven by Asian polyester and PTA chains; naphtha by cracker feedstock economics. The spread exhibits strong seasonal mean-reversion and is the deepest liquidity pool of the three.</p>
+        <div class="sc-stats">
+          <div class="sc-stat"><div class="sv">3 trades</div><div class="sl">TRADED</div></div>
+          <div class="sc-stat"><div class="sv" style="color:var(--green)">100%</div><div class="sl">WIN RATE</div></div>
+          <div class="sc-stat"><div class="sv">+$920K</div><div class="sl">P&amp;L</div></div>
+        </div>
+      </div>
+      <div class="spread-card">
+        <div class="sc-top">
+          <span class="sc-ico">🔶</span>
+          <span class="sc-name">Benzene – Naphtha</span>
+        </div>
+        <p class="sc-desc">High-volatility spread driven by Chinese capacity additions, European cracker cycles, and U.S. Gulf supply dynamics. Structural oversupply creates persistent short-side opportunities with asymmetric risk/reward.</p>
+        <div class="sc-stats">
+          <div class="sc-stat"><div class="sv">2 trades</div><div class="sl">TRADED</div></div>
+          <div class="sc-stat"><div class="sv" style="color:var(--green)">100%</div><div class="sl">WIN RATE</div></div>
+          <div class="sc-stat"><div class="sv">+$275K</div><div class="sl">P&amp;L</div></div>
+        </div>
+      </div>
+      <div class="spread-card">
+        <div class="sc-top">
+          <span class="sc-ico">🔹</span>
+          <span class="sc-name">PX – Benzene</span>
+        </div>
+        <p class="sc-desc">Captures relative value between the polyester chain (PX→PTA→polyester) and the solvents/SM chain (benzene→styrene). Useful for diversification and portfolio hedging within the aromatics complex.</p>
+        <div class="sc-stats">
+          <div class="sc-stat"><div class="sv">1 trade</div><div class="sl">TRADED</div></div>
+          <div class="sc-stat"><div class="sv" style="color:var(--accent)">Open</div><div class="sl">STATUS</div></div>
+          <div class="sc-stat"><div class="sv">+$35K</div><div class="sl">UNREAL.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACK RECORD -->
+  <div class="sec">
+    <div class="sec-hdr"><h2>Verified track record</h2></div>
+    <div class="track-record">
+      <div class="tr-icon">📌</div>
+      <div>
+        <div class="tr-label">VERIFIED PUBLIC CALL — PX–NAPHTHA · LINKEDIN</div>
+        <div class="tr-headline">When PX–Naphtha was trading at $210–220/mt, the model publicly called a target of $260–280/mt. The spread hit exactly that range. A 10,000 MT position at those levels would have returned <span class="tr-profit">USD 600,000</span> — a 24%+ return on the spread move within a single quarter.</div>
+        <div class="tr-note">This is one example from a broader history of spread calls. For long-term performance data, Sharpe ratio analysis, and the full strategy deck, <a href="mailto:ven@upensg.com">contact us directly</a>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RISK MANAGEMENT -->
+  <div class="sec">
+    <div class="sec-hdr"><h2>Risk management</h2></div>
+    <div class="risk-grid">
+      <div class="risk-card">
+        <div class="risk-ico">🛡️</div>
+        <div>
+          <h3>Active hedge management</h3>
+          <p>Every open position carries a predefined stop-loss and is paired with dynamic hedges. Drawdown is actively managed throughout the position lifecycle — not just at entry.</p>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-ico">📐</div>
+        <div>
+          <h3>Rules-based, no discretion</h3>
+          <p>Entry and exit signals are fully model-defined. No overrides, no gut-feel adjustments. The strategy's discipline is the edge — it doesn't deviate in volatile markets.</p>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-ico">🌐</div>
+        <div>
+          <h3>Zero crude oil directional exposure</h3>
+          <p>All positions are spread trades between two aromatics products. Crude oil price movements affect both legs similarly, meaning the strategy is structurally insulated from crude volatility.</p>
+        </div>
+      </div>
+      <div class="risk-card">
+        <div class="risk-ico">📊</div>
+        <div>
+          <h3>Position sizing discipline</h3>
+          <p>Position sizes are calibrated to model confidence and spread volatility — not fixed. Higher-conviction, lower-volatility setups receive larger allocations. No averaging down.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5-YEAR OUTLOOK -->
+  <div class="sec">
+    <div class="sec-hdr">
+      <h2>5-Year volume &amp; return programme</h2>
+      <span class="sec-tag">ILLUSTRATIVE TARGETS</span>
+    </div>
+    <table class="yr-table">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Quarterly Volume (MT)</th>
+          <th>Annual Volume (MT)</th>
+          <th>Target Profit Range</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>2026</td><td>80,000</td><td>320,000</td>
+          <td class="profit">USD 8–10M</td>
+          <td style="color:var(--dim)">Establish base performance and system confidence</td>
+        </tr>
+        <tr>
+          <td>2027</td><td>100,000</td><td>400,000</td>
+          <td class="profit">USD 10–13M</td>
+          <td style="color:var(--dim)">Scale after validated first-year results</td>
+        </tr>
+        <tr>
+          <td>2028</td><td>120,000</td><td>480,000</td>
+          <td class="profit">USD 12–15M</td>
+          <td style="color:var(--dim)">Broader participation across all three spreads</td>
+        </tr>
+        <tr>
+          <td>2029</td><td>140,000</td><td>560,000</td>
+          <td class="profit">USD 14–18M</td>
+          <td style="color:var(--dim)">Scale with deeper market access</td>
+        </tr>
+        <tr>
+          <td>2030</td><td>160,000</td><td>640,000</td>
+          <td class="profit">USD 16–20M</td>
+          <td style="color:var(--dim)">Mature phase, full deployment</td>
+        </tr>
+        <tr class="total-row">
+          <td>5-Year Total</td><td>—</td><td>2,400,000</td>
+          <td class="profit" style="font-size:15px">USD 60–76M</td>
+          <td style="color:var(--dim)">Cumulative programme target</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:right">Targets are illustrative. Actual returns depend on market conditions and capital deployed. Not a guarantee of performance.</p>
+  </div>
+
+  <!-- INFORMATION EDGE -->
+  <div class="sec">
+    <div class="sec-hdr"><h2>Our information edge</h2></div>
+    <div class="edge-grid">
+      <div class="edge-card">
+        <div class="ei">🌏</div>
+        <h3>Pan-Asian physical market network</h3>
+        <p>Direct relationships with plant operators, traders, and logistics providers across Singapore, South Korea, Japan, and China — providing early signal on supply disruptions, cargo diversions, and operating rate shifts before they appear in public data.</p>
+      </div>
+      <div class="edge-card">
+        <div class="ei">🏗️</div>
+        <h3>Cracker &amp; plant maintenance intelligence</h3>
+        <p>Knowledge of scheduled and unscheduled cracker turnarounds across the Asian complex — one of the most reliable leading indicators for short-term spread movements — gathered through industry relationships rather than public announcements.</p>
+      </div>
+      <div class="edge-card">
+        <div class="ei">📦</div>
+        <h3>Cargo flow visibility</h3>
+        <p>Understanding of how physical cargo moves between ARA, the Gulf, and Asia — including arbitrage window timing and freight rate sensitivity — gives the model a more complete picture of near-term supply-demand balance than price data alone.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-block">
+    <h2>Request the full strategy deck</h2>
+    <p>We share detailed back-test results, risk metrics, Sharpe ratio analysis, and commercial terms privately. Reach out to start the conversation.</p>
+    <div class="cta-contacts">
+      <a href="mailto:ven@upensg.com" class="cta-link cta-email">✉️ &nbsp;ven@upensg.com</a>
+      <a href="trades.html" class="cta-link cta-trades">📊 &nbsp;View trade log</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>Upen Pte Ltd &nbsp;|&nbsp; <a href="index.html">Dashboard</a> &nbsp;·&nbsp; <a href="plant-owners.html">For Plant Owners</a> &nbsp;·&nbsp; <a href="trades.html">Trades &amp; Performance</a> &nbsp;·&nbsp; <a href="about.html">About</a></p>
+  <p style="margin-top:6px;font-size:10px;color:#2a3d55">&copy; 2026 Upen Pte Ltd. All rights reserved. For informational purposes only. Not financial advice. Past performance does not guarantee future results.</p>
+  <p style="margin-top:4px;font-size:10px;color:#1e3050;max-width:700px;margin-left:auto;margin-right:auto;line-height:1.6">All market data, news, pricing, and third-party content referenced on this site remain the intellectual property of their respective owners and sources. Upen Pte Ltd makes no claim of ownership over any such content.</p>
+</footer>
+
+</body>
+</html>
